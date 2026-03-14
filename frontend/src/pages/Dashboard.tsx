@@ -147,7 +147,7 @@ export default function Dashboard() {
           >
             <div className="h-[180px] mt-2">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data.evolucao} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+                <AreaChart data={data.evolucao ?? []} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorValor" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="var(--chart-3)" stopOpacity={0.4} />
@@ -224,7 +224,7 @@ export default function Dashboard() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={data.funilPorStatus}
+                  data={data.funilPorStatus ?? []}
                   dataKey="count"
                   nameKey="status"
                   cx="50%"
@@ -232,7 +232,7 @@ export default function Dashboard() {
                   outerRadius={80}
                   label={({ status, count }) => `${status}: ${count}`}
                 >
-                  {data.funilPorStatus.map((_, i) => (
+                  {(data.funilPorStatus ?? []).map((_, i) => (
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
@@ -250,13 +250,13 @@ export default function Dashboard() {
 
         <ChartCard title="Contatos mais ativos" subtitle="Por quantidade de briques">
           <div className="h-[220px]">
-            {data.contatosMaisAtivos.length === 0 ? (
+            {(data.contatosMaisAtivos ?? []).length === 0 ? (
               <p className="text-sm flex items-center h-full" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>
                 Nenhum contato com briques ainda.
               </p>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.contatosMaisAtivos} layout="vertical" margin={{ left: 20, right: 20 }}>
+                <BarChart data={data.contatosMaisAtivos ?? []} layout="vertical" margin={{ left: 20, right: 20 }}>
                   <XAxis type="number" stroke="var(--chart-text)" fontSize={11} />
                   <YAxis type="category" dataKey="phone" stroke="var(--chart-text)" fontSize={11} width={100} tickFormatter={(v) => v || '(sem telefone)'} />
                   <Tooltip

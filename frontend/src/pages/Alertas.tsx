@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import api from '../lib/api';
 import { isMockMode } from '../lib/mockMode';
 import type { Watchlist, WatchlistInsert, OpportunityRow } from '../types/marketplace';
 
@@ -50,6 +51,8 @@ const contentStyle = { fontFamily: 'var(--font-body)' as const };
 export default function Alertas() {
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>('alertas');
+  const [scrapeLoading, setScrapeLoading] = useState(false);
+  const [scrapeMessage, setScrapeMessage] = useState<string | null>(null);
 
   if (isMockMode) {
     return (
@@ -80,13 +83,31 @@ export default function Alertas() {
     );
   }
 
+  const handleRunScraper = async () => {
+    setScrapeMessage(null);
+    setScrapeLoading(true);
+    try {
+      const { data } = await api.get<{ ok: boolean; output?: string; error?: string }>('/scrape');
+      if (data.ok) {
+        setScrapeMessage(data.output ?? 'Scraper concluído.');
+      } else {
+        setScrapeMessage(`Erro: ${data.error}${data.output ? '\n' + data.output : ''}`);
+      }
+    } catch (err: any) {
+      const res = err?.response?.data;
+      setScrapeMessage(res?.error ? `${res.error}${res.output ? '\n' + res.output : ''}` : err?.message ?? 'Falha ao rodar scraper.');
+    } finally {
+      setScrapeLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-semibold" style={{ fontFamily: 'var(--font-header)', color: 'var(--text)' }}>
         Alertas
       </h1>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={() => setTab('watchlists')}
@@ -123,7 +144,29 @@ export default function Alertas() {
         >
           Notificações
         </button>
+        <button
+          type="button"
+          onClick={handleRunScraper}
+          disabled={scrapeLoading}
+          className={`${tabStyle} ml-2`}
+          style={{
+            background: 'var(--brand-500)',
+            color: 'var(--text)',
+            border: '1px solid var(--border)',
+            opacity: scrapeLoading ? 0.7 : 1,
+          }}
+        >
+          {scrapeLoading ? 'Rodando...' : 'Rodar scraper (teste)'}
+        </button>
       </div>
+      {scrapeMessage && (
+        <pre
+          className="rounded-lg border p-4 text-left text-sm whitespace-pre-wrap overflow-x-auto"
+          style={{ background: 'var(--surface-200)', borderColor: 'var(--border)', color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+        >
+          {scrapeMessage}
+        </pre>
+      )}
 
       {tab === 'watchlists' && <TabWatchlists userId={user.id} />}
       {tab === 'oportunidades' && <TabOportunidades userId={user.id} />}
@@ -148,7 +191,7 @@ function TabWatchlists({ userId }: { userId: string }) {
       .order('created_at', { ascending: false })
       .then(({ data, error: err }) => {
         setError(err?.message ?? null);
-        setList((data as Watchlist[]) ?? []);
+        setList(Array.isArray(data) ? (data as Watchlist[]) : []);
         setLoading(false);
       });
   };
@@ -227,7 +270,7 @@ function TabWatchlists({ userId }: { userId: string }) {
               </tr>
             </thead>
             <tbody>
-              {list.map((w) => (
+              {(list ?? []).map((w) => (
                 <tr key={w.id} style={{ borderBottom: '1px solid var(--border)' }}>
                   <td className="py-3 px-4 font-medium" style={{ color: 'var(--text)', ...contentStyle }}>{w.name}</td>
                   <td className="py-3 px-4 text-sm" style={{ color: 'var(--text-muted)', ...contentStyle }}>{w.search_term}</td>
@@ -423,7 +466,7 @@ function TabOportunidades({ userId }: { userId: string }) {
           .in('watchlist_id', watchlistIds)
           .order('matched_at', { ascending: false });
         if (errM) throw errM;
-        if (!matches?.length) {
+        if (!Array.isArray(matches) || matches.length === 0) {
           if (!cancelled) setItems([]);
           if (!cancelled) setLoading(false);
           return;
@@ -436,7 +479,7 @@ function TabOportunidades({ userId }: { userId: string }) {
         if (errL) throw errL;
         type ListingRow = { id: string; title: string; price: number | null; location_text: string | null; city: string | null; state: string | null; external_url: string | null };
         const lMap = new Map((listings ?? []).map((l: ListingRow) => [l.id, l]));
-        const rows: OpportunityRow[] = (matches as { id: string; watchlist_id: string; listing_id: string; matched_at: string }[]).map((m) => {
+        const rows: OpportunityRow[] = (Array.isArray(matches) ? matches : []).map((m: { id: string; watchlist_id: string; listing_id: string; matched_at: string }) => {
           const listing = lMap.get(m.listing_id);
           return {
             matchId: m.id,
@@ -479,7 +522,7 @@ function TabOportunidades({ userId }: { userId: string }) {
           </tr>
         </thead>
         <tbody>
-          {items.map((row) => (
+          {(items ?? []).map((row) => (
             <tr key={row.matchId} style={{ borderBottom: '1px solid var(--border)' }}>
               <td className="py-3 px-4 font-medium" style={{ color: 'var(--text)', ...contentStyle }}>{row.listing.title}</td>
               <td className="py-3 px-4 text-sm" style={{ color: 'var(--text-muted)', ...contentStyle }}>{formatPrice(row.listing.price)}</td>
@@ -514,7 +557,7 @@ function TabNotificacoes({ userId }: { userId: string }) {
           .is('dismissed_at', null)
           .order('created_at', { ascending: false });
         if (errAlerts) throw errAlerts;
-        if (!alerts?.length) {
+        if (!Array.isArray(alerts) || alerts.length === 0) {
           setItems([]);
           setLoading(false);
           return;
@@ -525,7 +568,7 @@ function TabNotificacoes({ userId }: { userId: string }) {
           .select('id, title, price, location_text, city, state, external_url')
           .in('id', listingIds);
         const lMap = new Map((listings ?? []).map((l: ListingRow) => [l.id, l]));
-        const merged = (alerts as MarketplaceAlertRow[]).map((a) => ({ ...a, listing: lMap.get(a.listing_id) ?? null }));
+        const merged = Array.isArray(alerts) ? (alerts as MarketplaceAlertRow[]).map((a) => ({ ...a, listing: lMap.get(a.listing_id) ?? null })) : [];
         if (!cancelled) setItems(merged);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Erro');
@@ -538,12 +581,12 @@ function TabNotificacoes({ userId }: { userId: string }) {
 
   async function markRead(id: string) {
     await supabase.from('marketplace_alerts').update({ is_read: true, read_at: new Date().toISOString() }).eq('id', id).eq('user_id', userId);
-    setItems((prev) => prev.map((a) => (a.id === id ? { ...a, is_read: true, read_at: new Date().toISOString() } : a)));
+    setItems((prev) => (prev ?? []).map((a) => (a.id === id ? { ...a, is_read: true, read_at: new Date().toISOString() } : a)));
   }
 
   async function dismiss(id: string) {
     await supabase.from('marketplace_alerts').update({ dismissed_at: new Date().toISOString() }).eq('id', id).eq('user_id', userId);
-    setItems((prev) => prev.filter((a) => a.id !== id));
+    setItems((prev) => (prev ?? []).filter((a) => a.id !== id));
   }
 
   if (loading) return <p className="text-sm" style={{ color: 'var(--text-muted)', ...contentStyle }}>Carregando...</p>;
@@ -557,7 +600,7 @@ function TabNotificacoes({ userId }: { userId: string }) {
   }
   return (
     <ul className="space-y-3">
-      {items.map((a) => (
+      {(items ?? []).map((a) => (
         <li
           key={a.id}
           className="rounded-lg border p-4"
