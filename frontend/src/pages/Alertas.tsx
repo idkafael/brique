@@ -91,11 +91,18 @@ export default function Alertas() {
       if (data.ok) {
         setScrapeMessage(data.output ?? 'Scraper concluído.');
       } else {
-        setScrapeMessage(`Erro: ${data.error}${data.output ? '\n' + data.output : ''}`);
+        const errMsg = data.error ?? data.output ?? 'Erro desconhecido';
+        setScrapeMessage(data.output ? `${errMsg}\n${data.output}` : errMsg);
       }
     } catch (err: any) {
       const res = err?.response?.data;
-      setScrapeMessage(res?.error ? `${res.error}${res.output ? '\n' + res.output : ''}` : err?.message ?? 'Falha ao rodar scraper.');
+      const status = err?.response?.status;
+      let errMsg = 'Falha ao rodar scraper.';
+      if (typeof res === 'string') errMsg = res;
+      else if (typeof res === 'object' && res?.error) errMsg = res.error;
+      else if (err?.message) errMsg = err.message;
+      const out = typeof res === 'object' && res?.output ? `\n${res.output}` : '';
+      setScrapeMessage(status ? `[${status}] ${errMsg}${out}` : `${errMsg}${out}`);
     } finally {
       setScrapeLoading(false);
     }

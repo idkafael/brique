@@ -22,11 +22,11 @@ export class AppController {
       const output = [stdout, stderr].filter(Boolean).join('\n');
       return res.json({ ok: true, output: output || 'Scraper concluído.' });
     } catch (err: any) {
-      const message = err?.message ?? String(err);
+      const message = err?.message ?? err?.stack ?? (typeof err === 'string' ? err : 'Erro ao executar scraper');
       const output = err?.stdout ?? err?.stderr ?? '';
       return res.status(500).json({
         ok: false,
-        error: message,
+        error: String(message),
         output: output ? String(output).trim() : undefined,
       });
     }
