@@ -1,0 +1,16 @@
+{
+  "name": "crm-brique",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run start:dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "analyze-design": "node scripts/analyze-design.js",
+    "analyze-design:install": "npx playwright install chromium",
+    "analyze-sharkbot": "node scripts/analyze-sharkbot.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "playwright": "^1.49.0"
+  }
+}
