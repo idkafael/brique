@@ -1,7 +1,6 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
-const OBJETIVO_10K = 10000;
 const FATURAMENTO_EXEMPLO = 688.79;
 const PERCENTUAL_EXEMPLO = 7;
 

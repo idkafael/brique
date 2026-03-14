@@ -434,7 +434,8 @@ function TabOportunidades({ userId }: { userId: string }) {
           .select('id, title, price, location_text, city, state, external_url')
           .in('id', listingIds);
         if (errL) throw errL;
-        const lMap = new Map((listings ?? []).map((l: { id: string }) => [l.id, l]));
+        type ListingRow = { id: string; title: string; price: number | null; location_text: string | null; city: string | null; state: string | null; external_url: string | null };
+        const lMap = new Map((listings ?? []).map((l: ListingRow) => [l.id, l]));
         const rows: OpportunityRow[] = (matches as { id: string; watchlist_id: string; listing_id: string; matched_at: string }[]).map((m) => {
           const listing = lMap.get(m.listing_id);
           return {
@@ -442,7 +443,7 @@ function TabOportunidades({ userId }: { userId: string }) {
             watchlistName: wMap.get(m.watchlist_id) ?? '',
             matchedAt: m.matched_at,
             listing: listing
-              ? { id: listing.id, title: listing.title, price: listing.price, location_text: listing.location_text, city: listing.city, state: listing.state, external_url: listing.external_url }
+              ? { id: listing.id, title: listing.title, price: listing.price, location_text: listing.location_text, city: listing.city, state: listing.state, external_url: listing.external_url ?? '#' }
               : { id: '', title: '—', price: null, location_text: null, city: null, state: null, external_url: '#' },
           };
         });

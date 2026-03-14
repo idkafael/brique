@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { isMockMode } from '../lib/mockMode';
-import type { OpportunityRow } from '../types/marketplace';
+import type { MarketplaceListing, OpportunityRow } from '../types/marketplace';
 
 function formatPrice(n: number | null): string {
   if (n == null) return '—';
@@ -15,8 +15,9 @@ export default function Oportunidades() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const userId = user?.id;
   useEffect(() => {
-    if (isMockMode || !user?.id) {
+    if (isMockMode || !userId) {
       setLoading(false);
       return;
     }
@@ -27,7 +28,7 @@ export default function Oportunidades() {
         const { data: watchlists, error: errW } = await supabase
           .from('marketplace_watchlists')
           .select('id, name')
-          .eq('user_id', user.id);
+          .eq('user_id', userId);
         if (errW) throw errW;
         const wMap = new Map((watchlists ?? []).map((w: { id: string; name: string }) => [w.id, w.name]));
         const watchlistIds = [...wMap.keys()];
@@ -55,7 +56,7 @@ export default function Oportunidades() {
           .select('id, title, price, location_text, city, state, external_url')
           .in('id', listingIds);
         if (errL) throw errL;
-        const lMap = new Map((listings ?? []).map((l: { id: string }) => [l.id, l]));
+        const lMap = new Map((listings ?? []).map((l: MarketplaceListing) => [l.id, l]));
 
         const rows: OpportunityRow[] = (matches as { id: string; watchlist_id: string; listing_id: string; matched_at: string }[]).map((m) => {
           const listing = lMap.get(m.listing_id);
@@ -71,7 +72,7 @@ export default function Oportunidades() {
                   location_text: listing.location_text,
                   city: listing.city,
                   state: listing.state,
-                  external_url: listing.external_url,
+                  external_url: listing.external_url ?? '#',
                 }
               : { id: '', title: '—', price: null, location_text: null, city: null, state: null, external_url: '#' },
           };
@@ -91,7 +92,7 @@ export default function Oportunidades() {
     return () => {
       cancelled = true;
     };
-  }, [user?.id]);
+  }, [userId]);
 
   if (isMockMode) {
     return (
