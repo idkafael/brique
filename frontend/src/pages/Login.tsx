@@ -12,6 +12,7 @@ export default function Login() {
   const [password, setPassword] = useState(TEST_PASSWORD);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [registerLoading, setRegisterLoading] = useState(false);
   const [seedMessage, setSeedMessage] = useState('');
   const [seedLoading, setSeedLoading] = useState(false);
   const navigate = useNavigate();
@@ -49,6 +50,34 @@ export default function Login() {
       navigate('/dashboard', { replace: true });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRegister = async () => {
+    setError('');
+    setRegisterLoading(true);
+    try {
+      if (isMockMode && loginMockUser) {
+        // No modo demonstração, "registrar" só cria a sessão mock e entra.
+        loginMockUser(email);
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+      const { data, error: err } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      if (err) {
+        setError(err.message);
+        return;
+      }
+      if (!data?.user) {
+        setError('Não foi possível registrar. Tente novamente.');
+        return;
+      }
+      navigate('/dashboard', { replace: true });
+    } finally {
+      setRegisterLoading(false);
     }
   };
 
@@ -156,6 +185,20 @@ export default function Login() {
               }}
             >
               {loading ? 'Entrando...' : 'Entrar'}
+            </button>
+            <button
+              type="button"
+              onClick={handleRegister}
+              disabled={registerLoading}
+              className="w-full rounded-lg border py-2 text-sm mt-2 transition-colors disabled:opacity-50"
+              style={{
+                background: 'var(--surface-100)',
+                borderColor: 'var(--border)',
+                color: 'var(--text-muted)',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              {registerLoading ? 'Registrando...' : 'Registrar novo usuário'}
             </button>
             {!isMockMode && (
               <button
