@@ -47,10 +47,14 @@ export default function BriquesList() {
     const params: Record<string, string> = {};
     if (filterStatus) params.status = filterStatus;
     if (filterOrigin) params.origin = filterOrigin;
-    api.get<Brique[]>('/briques', { params }).then((res) => {
-      setBriques(res.data);
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    api
+      .get<Brique[]>('/briques', { params })
+      .then((res) => {
+        const data = Array.isArray(res.data) ? res.data : [];
+        setBriques(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, [filterStatus, filterOrigin]);
 
   useEffect(() => {
