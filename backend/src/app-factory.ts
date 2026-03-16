@@ -25,6 +25,9 @@ export class AppFactory {
         return app.init();
       })
       .catch((err) => {
+        // Log detalhado de erro de bootstrap (inclui erros de conexão com banco)
+        // eslint-disable-next-line no-console
+        console.error('[APP BOOTSTRAP ERROR]', err);
         throw err;
       });
 

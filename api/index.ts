@@ -28,5 +28,17 @@ if (missing.length === 0) {
   };
 }
 
-export default app;
+const handler = (req: any, res: any) => {
+  // Logs temporários para diagnosticar o path recebido pela função /api
+  // eslint-disable-next-line no-console
+  console.log('[API DEBUG] incoming request', {
+    url: req?.url,
+    path: req?.path,
+    originalUrl: req?.originalUrl,
+    method: req?.method,
+  });
+  return app(req, res);
+};
+
+export default handler;
 
