@@ -31,6 +31,19 @@ export class AppFactory {
         throw err;
       });
 
+    // Log temporário: path recebido pelo Express/Nest (após eventual strip de /api no handler Vercel)
+    expressApp.use((req: Request, _res: Response, next: (err?: unknown) => void) => {
+      // eslint-disable-next-line no-console
+      console.log('[NEST REQUEST]', {
+        method: req.method,
+        url: req.url,
+        originalUrl: req.originalUrl,
+        baseUrl: req.baseUrl,
+        path: req.path,
+      });
+      next();
+    });
+
     expressApp.use((req: Request, res: Response, next: (err?: unknown) => void) => {
       appPromise.then(() => next()).catch((err) => next(err));
     });
