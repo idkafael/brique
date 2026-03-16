@@ -1,18 +1,30 @@
 /**
  * Função serverless da Vercel que expõe o backend NestJS.
  * Usa o AppFactory já existente no backend.
+ * Aguarda appPromise antes de atender requests (evita 404 por Nest ainda não inicializado).
  */
 
 const requiredEnvVars = ['SUPABASE_URL', 'SUPABASE_JWT_SECRET', 'DATABASE_URL'] as const;
 const missing = requiredEnvVars.filter((k) => !process.env[k]);
 
-let app: any;
+let appPromise: Promise<unknown> | null = null;
+let expressApp: any = null;
+let fallbackApp: any = null;
 
 if (missing.length === 0) {
   const { AppFactory } = require('../backend/dist/src/app-factory');
-  app = AppFactory.create().expressApp;
+  const created = AppFactory.create();
+  appPromise = created.appPromise;
+  expressApp = created.expressApp;
+  appPromise
+    .then(() => {
+      console.log('[API] Nest app ready');
+    })
+    .catch((err: unknown) => {
+      console.error('[API] Nest app failed', err);
+    });
 } else {
-  app = (_req: unknown, res: any) => {
+  fallbackApp = (_req: unknown, res: any) => {
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res
       .status(503)
@@ -37,7 +49,21 @@ const handler = (req: any, res: any) => {
     originalUrl: req?.originalUrl,
   });
 
-  return app(req, res);
+  if (appPromise && expressApp) {
+    appPromise
+      .then(() => {
+        expressApp(req, res);
+      })
+      .catch((err: unknown) => {
+        console.error('[API] app not ready', err);
+        res
+          .status(503)
+          .setHeader('Content-Type', 'text/plain; charset=utf-8')
+          .send('Backend initializing or error.');
+      });
+  } else {
+    fallbackApp(req, res);
+  }
 };
 
 export default handler;
