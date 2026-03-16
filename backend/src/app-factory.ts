@@ -5,6 +5,7 @@ import type { INestApplication } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import express from 'express';
 import { AppModule } from './app.module';
+import { HttpNotFoundFilter } from './http-not-found.filter';
 
 export class AppFactory {
   private static instance: { appPromise: Promise<INestApplication>; expressApp: express.Express } | null = null;
@@ -20,6 +21,7 @@ export class AppFactory {
       .then((app) => {
         app.enableCors({ origin: true, credentials: true });
         app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+        app.useGlobalFilters(new HttpNotFoundFilter());
         return app.init();
       })
       .catch((err) => {

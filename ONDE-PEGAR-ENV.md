@@ -96,3 +96,15 @@ Na seção **Connection string** escolha **URI** e copie. A senha é a que você
    → Connection string URI (e senha do postgres)
 
 Com isso você consegue preencher todos os `.env` que o projeto usa.
+
+---
+
+## Se o dashboard mostrar "Não autorizado" (401) mesmo após login
+
+O backend valida o JWT do Supabase com **SUPABASE_JWT_SECRET**. Se esse valor estiver errado, todo token é rejeitado.
+
+1. No Supabase: **Project Settings** → **API** → role até **JWT Settings**.
+2. Copie o **JWT Secret** (não é a anon key nem a service_role key).
+3. No `backend/.env`, defina exatamente: `SUPABASE_JWT_SECRET=<valor copiado>`.
+4. Reinicie o backend (`npm run dev` na raiz ou `npm run start:dev` na pasta backend).
+5. No frontend, clique em **Sair**, entre de novo e teste o dashboard.

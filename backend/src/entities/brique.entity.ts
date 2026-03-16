@@ -38,13 +38,13 @@ export class Brique {
   })
   status: BriqueStatus;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   origin: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   phone: string | null;
 
-  @Column({ name: 'social_media', nullable: true })
+  @Column({ name: 'social_media', type: 'varchar', length: 255, nullable: true })
   socialMedia: string | null;
 
   @Column({ type: 'text', nullable: true })

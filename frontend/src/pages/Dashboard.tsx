@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Area,
   AreaChart,
@@ -85,7 +86,13 @@ export default function Dashboard() {
       })
       .catch((err) => {
         setStats(EMPTY_STATS);
-        setError(err?.response?.data?.message || 'Não foi possível carregar o dashboard. Verifique se o backend está rodando na porta 3000.');
+        const status = err?.response?.status;
+        const msg = err?.response?.data?.message;
+        if (status === 401 || msg === 'Unauthorized') {
+          setError('Sessão expirada ou não autorizado. Faça login novamente.');
+        } else {
+          setError(msg || 'Não foi possível carregar o dashboard. Verifique se o backend está rodando na porta 3000.');
+        }
       })
       .finally(() => setLoading(false));
   }, [period]);
@@ -99,12 +106,23 @@ export default function Dashboard() {
   }
 
   if (error) {
+    const isAuthError = error.includes('autorizado') || error.includes('login novamente');
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <p style={{ color: 'var(--danger-500)', fontFamily: 'var(--font-body)' }}>{error}</p>
-        <p style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontSize: '0.875rem' }}>
-          Na raiz do projeto execute: <code className="bg-black/20 px-2 py-1 rounded">npm run dev</code>
-        </p>
+        {isAuthError ? (
+          <Link
+            to="/login"
+            className="rounded-lg px-4 py-2 text-sm font-medium"
+            style={{ background: 'var(--brand-500)', color: 'var(--text)' }}
+          >
+            Fazer login novamente
+          </Link>
+        ) : (
+          <p style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontSize: '0.875rem' }}>
+            Na raiz do projeto execute: <code className="bg-black/20 px-2 py-1 rounded">npm run dev</code>
+          </p>
+        )}
       </div>
     );
   }

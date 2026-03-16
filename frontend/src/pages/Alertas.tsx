@@ -51,8 +51,6 @@ const contentStyle = { fontFamily: 'var(--font-body)' as const };
 export default function Alertas() {
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>('alertas');
-  const [scrapeLoading, setScrapeLoading] = useState(false);
-  const [scrapeMessage, setScrapeMessage] = useState<string | null>(null);
 
   if (isMockMode) {
     return (
@@ -82,31 +80,6 @@ export default function Alertas() {
       </div>
     );
   }
-
-  const handleRunScraper = async () => {
-    setScrapeMessage(null);
-    setScrapeLoading(true);
-    try {
-      const { data } = await api.get<{ ok: boolean; output?: string; error?: string }>('/scrape');
-      if (data.ok) {
-        setScrapeMessage(data.output ?? 'Scraper concluído.');
-      } else {
-        const errMsg = data.error ?? data.output ?? 'Erro desconhecido';
-        setScrapeMessage(data.output ? `${errMsg}\n${data.output}` : errMsg);
-      }
-    } catch (err: any) {
-      const res = err?.response?.data;
-      const status = err?.response?.status;
-      let errMsg = 'Falha ao rodar scraper.';
-      if (typeof res === 'string') errMsg = res;
-      else if (typeof res === 'object' && res?.error) errMsg = res.error;
-      else if (err?.message) errMsg = err.message;
-      const out = typeof res === 'object' && res?.output ? `\n${res.output}` : '';
-      setScrapeMessage(status ? `[${status}] ${errMsg}${out}` : `${errMsg}${out}`);
-    } finally {
-      setScrapeLoading(false);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -151,29 +124,7 @@ export default function Alertas() {
         >
           Notificações
         </button>
-        <button
-          type="button"
-          onClick={handleRunScraper}
-          disabled={scrapeLoading}
-          className={`${tabStyle} ml-2`}
-          style={{
-            background: 'var(--brand-500)',
-            color: 'var(--text)',
-            border: '1px solid var(--border)',
-            opacity: scrapeLoading ? 0.7 : 1,
-          }}
-        >
-          {scrapeLoading ? 'Rodando...' : 'Rodar scraper (teste)'}
-        </button>
       </div>
-      {scrapeMessage && (
-        <pre
-          className="rounded-lg border p-4 text-left text-sm whitespace-pre-wrap overflow-x-auto"
-          style={{ background: 'var(--surface-200)', borderColor: 'var(--border)', color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
-        >
-          {scrapeMessage}
-        </pre>
-      )}
 
       {tab === 'watchlists' && <TabWatchlists userId={user.id} />}
       {tab === 'oportunidades' && <TabOportunidades userId={user.id} />}
