@@ -25,6 +25,16 @@ const inputStyle = {
 };
 const labelStyle = { fontFamily: 'var(--font-body)', color: 'var(--text-muted)', fontSize: '14px' };
 
+function formatPhoneInput(value: string) {
+  const digits = value.replace(/\D/g, '').slice(0, 11);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 11) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3, 7)}-${digits.slice(7)}`;
+  }
+  return value;
+}
+
 export default function BriqueForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -250,7 +260,20 @@ export default function BriqueForm() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block font-medium mb-2" style={labelStyle}>Telefone</label>
-                <input type="text" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className={inputClass} style={inputStyle} placeholder="(00) 00000-0000" />
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      phone: formatPhoneInput(e.target.value),
+                    }))
+                  }
+                  className={inputClass}
+                  style={inputStyle}
+                  placeholder="(11) 9 1111-1111"
+                  maxLength={18}
+                />
               </div>
               <div>
                 <label className="block font-medium mb-2" style={labelStyle}>Rede social</label>
