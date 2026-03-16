@@ -154,7 +154,7 @@ export default function Dashboard() {
           value={formatMoney(data.valorFechadoNoPeriodo)}
           subtitle={period === '7d' ? 'últimos 7 dias' : period === '30d' ? 'último mês' : period === 'hoje' ? 'hoje' : period === 'ontem' ? 'ontem' : 'total'}
           icon={ICON_DOLAR}
-          iconColor="green"
+          iconColor="blue"
         />
         <div className="md:col-span-2">
           <MetricCard
@@ -192,7 +192,7 @@ export default function Dashboard() {
           value={formatMoney(data.liquidoNoPeriodo)}
           subtitle="saldo no período"
           icon={ICON_DOLAR}
-          iconColor="green"
+          iconColor="blue"
           valueStyle={{
             color: data.liquidoNoPeriodo >= 0 ? 'var(--success-500)' : 'var(--danger-500)',
           }}
@@ -213,14 +213,14 @@ export default function Dashboard() {
           value={data.totalFechadasNoPeriodo}
           subtitle="briques vendidas"
           icon={ICON_BOX}
-          iconColor="green"
+          iconColor="blue"
         />
         <MetricCard
           title="Valor fechado no período"
           value={formatMoney(data.valorFechadoNoPeriodo)}
           subtitle="valor líquido"
           icon={ICON_DOLAR}
-          iconColor="green"
+          iconColor="blue"
         />
         <MetricCard
           title="Briques totais"
