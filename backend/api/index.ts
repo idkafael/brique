@@ -7,7 +7,7 @@ const missing = requiredEnvVars.filter((k) => !process.env[k]);
 
 let app: any;
 if (missing.length === 0) {
-  const { AppFactory } = require('../dist/src/app-factory');
+  const { AppFactory } = require('../app-factory');
   app = AppFactory.create().expressApp;
 } else {
   app = (_req: unknown, res: { status: (n: number) => { send: (s: string) => void }; setHeader: (k: string, v: string) => void }) => {
