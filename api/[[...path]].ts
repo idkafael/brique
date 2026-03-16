@@ -25,9 +25,15 @@ if (missing.length === 0) {
 }
 
 const handler = (req: any, res: any) => {
+  const before = req?.url || '/';
+  const after = before.replace(/^\/api(?=\/|$)/, '') || '/';
+
+  req.url = after;
+
   console.log('[API DEBUG] incoming request', {
     method: req?.method,
-    url: req?.url,
+    beforeUrl: before,
+    afterUrl: req?.url,
     originalUrl: req?.originalUrl,
   });
 
