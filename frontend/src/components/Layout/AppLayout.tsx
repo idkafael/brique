@@ -1,8 +1,8 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
-const FATURAMENTO_EXEMPLO = 688.79;
-const PERCENTUAL_EXEMPLO = 7;
+const FATURAMENTO_EXEMPLO = 0;
+const PERCENTUAL_EXEMPLO = 0;
 
 /** Formata a data para exibição (sempre usa a data atual do sistema – atualiza ao abrir/recarregar a página). */
 function formatDate(d: Date) {

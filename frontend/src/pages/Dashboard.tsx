@@ -33,7 +33,8 @@ interface DashboardStats {
 }
 
 function formatMoney(n: number) {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(n);
+  const value = Number.isFinite(n) ? n : 0;
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
 
 const ICON_DOLAR = (
