@@ -40,18 +40,18 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen" style={{ background: 'var(--surface-base)' }}>
       <header
-        className="px-6 py-4 border-b"
+        className="px-4 sm:px-6 py-3 sm:py-4 border-b sticky top-0 z-40"
         style={{
           background: 'var(--surface-base)',
           borderColor: 'var(--border)',
           fontFamily: 'var(--font-body)',
         }}
       >
-        <div className="relative flex items-center justify-between max-w-7xl mx-auto gap-6">
+        <div className="relative flex items-center justify-between max-w-7xl mx-auto gap-3 sm:gap-6">
           {/* Card Faturamento – igual à referência: fundo azul escuro, círculo azul claro, barra azul */}
           <Link
             to="/dashboard"
-            className="flex items-center gap-4 shrink-0"
+            className="hidden sm:flex items-center gap-4 shrink-0"
             style={{
               background: 'var(--surface-200)',
               border: '1px solid var(--border)',
@@ -101,9 +101,9 @@ export default function AppLayout() {
             </div>
           </Link>
 
-          {/* Centro: saudação + data + nav – centralizado no meio do header */}
-          <div className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center text-center -translate-x-1/2 -translate-y-1/2">
-            <p style={{ fontSize: '20px', fontFamily: 'var(--font-header)', fontWeight: 500, color: 'var(--text-secondary)' }}>
+          {/* Centro: saudação + data + nav – fixo no topo, sempre visível */}
+          <div className="flex-1 flex flex-col items-center justify-center text-center sm:absolute sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2">
+            <p style={{ fontSize: '18px', fontFamily: 'var(--font-header)', fontWeight: 500, color: 'var(--text-secondary)' }}>
               {getGreeting()},{' '}
               <span style={{ color: 'var(--brand-400)' }}>{displayName}</span>
             </p>
@@ -113,7 +113,7 @@ export default function AppLayout() {
             >
               {formatDate(new Date())}
             </p>
-            <nav className="flex items-center justify-center gap-4 mt-2">
+            <nav className="flex items-center justify-center gap-3 sm:gap-4 mt-2">
               <NavLink
                 to="/dashboard"
                 className={({ isActive }) =>
@@ -161,7 +161,7 @@ export default function AppLayout() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6" style={{ fontFamily: 'var(--font-body)' }}>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pb-4 pt-4 sm:pt-6" style={{ fontFamily: 'var(--font-body)' }}>
         <Outlet />
       </main>
     </div>

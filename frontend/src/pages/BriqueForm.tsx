@@ -195,11 +195,30 @@ export default function BriqueForm() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block font-medium mb-2" style={labelStyle}>Valor de compra *</label>
-                <input type="number" step="0.01" min="0" value={form.purchaseValue} onChange={(e) => setForm((f) => ({ ...f, purchaseValue: e.target.value }))} required className={inputClass} style={inputStyle} placeholder="0,00" />
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={form.purchaseValue}
+                  onChange={(e) => setForm((f) => ({ ...f, purchaseValue: e.target.value }))}
+                  required
+                  className={inputClass}
+                  style={inputStyle}
+                  placeholder="0.00"
+                />
               </div>
               <div>
-                <label className="block font-medium mb-2" style={labelStyle}>Valor de venda *</label>
-                <input type="number" step="0.01" min="0" value={form.saleValue} onChange={(e) => setForm((f) => ({ ...f, saleValue: e.target.value }))} required className={inputClass} style={inputStyle} placeholder="0,00" />
+                <label className="block font-medium mb-2" style={labelStyle}>Valor de venda</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={form.saleValue}
+                  onChange={(e) => setForm((f) => ({ ...f, saleValue: e.target.value }))}
+                  className={inputClass}
+                  style={inputStyle}
+                  placeholder="0.00"
+                />
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
